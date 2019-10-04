@@ -1,35 +1,45 @@
 <style>
-  #the-object {
+  .object {
     width: 100px;
     height: 100px;
-    background: red;
     border: solid 1px;
   }
 
   body {
     overflow: hidden;
   }
+
+  .vector-text {
+    color: white;
+    font-size: 11px;
+    font-family: Helvetica;
+  }
 </style>
 
 <body>
-  <div id="position"></div>
-  <div id="velocity"></div>
-  <div id="acceleration"></div>
-
-  <div id="the-object">
-  </div>
 </body>
 
 <script type="text/javascript">
 
-const object = {
-  position: [0,0],
-  velocity: [0,0],
-  acceleration: [32,0],
-};
+const objects = [
+  {
+    id: 0,
+    position: [0,0],
+    velocity: [0,0],
+    acceleration: [32,0],
+    color: '#ff0000',
+  },
+  {
+    id: 1,
+    position: [0,0],
+    velocity: [0,0],
+    acceleration: [0,0],
+    color: '#0000ff',
+  }
+];
 
 let start = null;
-const object_el = document.getElementById('the-object'),
+const body_el = document.getElementsByTagName("BODY")[0],
       position_el = document.getElementById('position'),
       velocity_el = document.getElementById('velocity'),
       acceleration_el = document.getElementById('acceleration');
@@ -50,26 +60,47 @@ function vector_to_string(vector) {
 }
 
 function set_html(object, key) {
-  document.getElementById(key).innerHTML = `${key}: ${vector_to_string(object[key])}`;
+  const child_el = object.dom_element.querySelector('.' + key);
+  child_el.innerHTML = `${key[0]}: ${vector_to_string(object[key])}`;
 }
+
+objects.forEach(function(object) {
+  const vector_els = (
+    '<div class="vector-text position"></div>\n' +
+    '<div class="vector-text velocity"></div>\n' +
+    '<div class="vector-text acceleration"></div>'
+  );
+
+  const object_el = document.createElement('div');
+  object_el.className = 'object';
+  object_el.style.background = object.color;
+  object_el.innerHTML = vector_els;
+  body_el.appendChild( object_el );
+
+  object.dom_element = object_el;
+});
 
 function step(timestamp) {
   if (!start)
     start = timestamp;
   const time = (timestamp - start) / 1000;
 
-  // velocity = acceleration * time
-  // position = velocity * time
-  set_vector(object, 'velocity', scale_vector(object.acceleration, time));
-  set_vector(object, 'position', scale_vector(object.velocity, time));
+  objects[1].acceleration = [time, 0];
 
-  const keys = ['position', 'velocity', 'acceleration'];
-  for(let i = 0; i < keys.length; i++)
-    set_html(object, keys[i]);
+  objects.forEach(function(object) {
+    // velocity = acceleration * time
+    // position = velocity * time
+    set_vector(object, 'velocity', scale_vector(object.acceleration, time));
+    set_vector(object, 'position', scale_vector(object.velocity, time));
 
-  object_el.style.transform = (
-    `translateX(${object.position[0]}px) translateY(${object.position[1]}px)`
-  );
+    const keys = ['position', 'velocity', 'acceleration'];
+    for(let i = 0; i < keys.length; i++)
+      set_html(object, keys[i]);
+
+    object.dom_element.style.transform = (
+      `translateX(${object.position[0]}px) translateY(${object.position[1]}px)`
+    );
+  });
   window.requestAnimationFrame(step);
 }
 

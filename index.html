@@ -1,0 +1,78 @@
+<style>
+  #the-object {
+    width: 100px;
+    height: 100px;
+    background: red;
+    border: solid 1px;
+  }
+
+  body {
+    overflow: hidden;
+  }
+</style>
+
+<body>
+  <div id="position"></div>
+  <div id="velocity"></div>
+  <div id="acceleration"></div>
+
+  <div id="the-object">
+  </div>
+</body>
+
+<script type="text/javascript">
+
+const object = {
+  position: [0,0],
+  velocity: [0,0],
+  acceleration: [32,0],
+};
+
+let start = null;
+const object_el = document.getElementById('the-object'),
+      position_el = document.getElementById('position'),
+      velocity_el = document.getElementById('velocity'),
+      acceleration_el = document.getElementById('acceleration');
+
+function scale_vector(vector, scalar) {
+  const new_vector = [];
+  for(let i = 0; i < vector.length; i++)
+    new_vector.push(vector[i] * scalar);
+  return new_vector;
+}
+
+function set_vector(object, key, vector) {
+  object[key] = vector;
+}
+
+function vector_to_string(vector) {
+  return `[${vector[0].toFixed(2)}, ${vector[1].toFixed(2)}]`
+}
+
+function set_html(object, key) {
+  document.getElementById(key).innerHTML = `${key}: ${vector_to_string(object[key])}`;
+}
+
+function step(timestamp) {
+  if (!start)
+    start = timestamp;
+  const time = (timestamp - start) / 1000;
+
+  // velocity = acceleration * time
+  // position = velocity * time
+  set_vector(object, 'velocity', scale_vector(object.acceleration, time));
+  set_vector(object, 'position', scale_vector(object.velocity, time));
+
+  const keys = ['position', 'velocity', 'acceleration'];
+  for(let i = 0; i < keys.length; i++)
+    set_html(object, keys[i]);
+
+  object_el.style.transform = (
+    `translateX(${object.position[0]}px) translateY(${object.position[1]}px)`
+  );
+  window.requestAnimationFrame(step);
+}
+
+window.requestAnimationFrame(step);
+
+</script>

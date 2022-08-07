@@ -26,7 +26,7 @@ const objects = [
     id: 0,
     position: [0,0],
     velocity: [0,0],
-    acceleration: [32,0],
+    acceleration: [10,0],
     color: '#ff0000',
   },
   {
@@ -35,6 +35,13 @@ const objects = [
     velocity: [0,0],
     acceleration: [0,0],
     color: '#0000ff',
+  },
+  {
+    id: 2,
+    position: [0,0],
+    velocity: [0,0],
+    acceleration: [0,0],
+    color: '#00aa00',
   }
 ];
 
@@ -86,6 +93,7 @@ function step(timestamp) {
   const time = (timestamp - start) / 1000;
 
   objects[1].acceleration = [time, 0];
+  objects[2].acceleration = [time * .5, 0];
 
   objects.forEach(function(object) {
     // velocity = acceleration * time
